@@ -6,11 +6,11 @@ import android.bluetooth.BluetoothSocket;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class BluetoothService {
@@ -171,10 +171,10 @@ public class BluetoothService {
         ConnectThread(BluetoothDevice device) {
             mDevice = device;
             BluetoothSocket tmp = null;
-            mSocketType = "Insecure";
+            mSocketType = "Secure";
 
             try {
-                tmp = device.createInsecureRfcommSocketToServiceRecord(UUID_KEY);
+                tmp = device.createRfcommSocketToServiceRecord(UUID_KEY);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -239,19 +239,42 @@ public class BluetoothService {
         }
 
         public void run() {
-            byte[] buffer = new byte[1024];
-            int bytes;
-
-            while (mState == STATE_CONNECTED) {
+//            byte[] buffer = new byte[1024];
+//            int bytes;
+//
+//            while (mState == STATE_CONNECTED) {
+//                try {
+//                    bytes = mInputStream.read(buffer);
+////                    String string = new String(buffer);
+////                    Log.e("ROVER", string);
+//
+//                    mHandler.obtainMessage(Constants.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                    connectionLost();
+//                    break;
+//                }
+//            }
+            byte[] buffer;
+            ArrayList<Integer> arr_byte = new ArrayList<>();
+            while (true) {
                 try {
-                    bytes = mInputStream.read(buffer);
-                    String string = new String(buffer);
-                    Log.e("ROVER", string);
+                    int data = mInputStream.read();
+                    if (data == 0x0D) {
+                        buffer = new byte[arr_byte.size()];
+                        for (int i = 0; i < arr_byte.size(); i++) {
+                            buffer[i] = arr_byte.get(i).byteValue();
+                        }
 
-                    mHandler.obtainMessage(Constants.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
+                        mHandler.obtainMessage(Constants.MESSAGE_READ, buffer.length, -1, buffer).sendToTarget();
+                        arr_byte = new ArrayList<>();
+                    } else {
+                        if (data != 0x0A) {
+                            arr_byte.add(data);
+                        }
+                    }
                 } catch (IOException e) {
-                    e.printStackTrace();
-                    connectionLost();
+//                    connectionLost();
                     break;
                 }
             }

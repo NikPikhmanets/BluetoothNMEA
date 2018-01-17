@@ -24,10 +24,6 @@ import com.pikhmanets.BluetoothNMEA.bluetooth.BluetoothService;
 import com.pikhmanets.BluetoothNMEA.bluetooth.Constants;
 import com.pikhmanets.BluetoothNMEA.bluetooth.DeviceList;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import static com.pikhmanets.BluetoothNMEA.bluetooth.BluetoothService.STATE_CONNECTED;
 import static com.pikhmanets.BluetoothNMEA.bluetooth.BluetoothService.STATE_CONNECTING;
 import static com.pikhmanets.BluetoothNMEA.bluetooth.BluetoothService.STATE_NONE;
@@ -64,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         isEnableBt = false;
+        setStatus(R.string.title_not_connected);
         mConversationView = findViewById(R.id.list_view);
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -133,12 +130,14 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.connect_device_bt:
+
                 isEnableBt = !isEnableBt;
 
                 if (isEnableBt) {
                     Intent intent = new Intent(mContext, DeviceList.class);
                     startActivityForResult(intent, REQUEST_CONNECT_DEVICE);
                 } else {
+                    setTitleMenu(R.string.disconnect_device);
                     mBluetoothService.stop();
                 }
                 return true;
@@ -152,11 +151,7 @@ public class MainActivity extends AppCompatActivity {
             case REQUEST_CONNECT_DEVICE:
                 if (resultCode == Activity.RESULT_OK) {
                     connectDevice(data);
-                    setTitleMenu("Disconnect");
-                    isEnableBt = false;
-                } else {
-                    setTitleMenu("Connect");
-                    isEnableBt = true;
+                    setTitleMenu(R.string.disconnect_device);
                 }
                 break;
             case REQUEST_ENABLE_BT:
@@ -197,17 +192,17 @@ public class MainActivity extends AppCompatActivity {
                     byte[] readBuff = (byte[]) msg.obj;
                     String readMessage = new String(readBuff, offset, msg.arg1);
 
-                    String[] value = readMessage.split(regex);
-                    List<String> listMsg = new ArrayList<>();
-                    listMsg.addAll(Arrays.asList(value));
+//                    String[] value = readMessage.split(regex);
+//                    List<String> listMsg = new ArrayList<>();
+//                    listMsg.addAll(Arrays.asList(value));
 
 
                     String TAG = "ROVER";
 
-                    for (String str : value) {
-                        mConversationArrayAdapter.add(str);
-                        Log.i(TAG, str);
-                    }
+//                    for (String str : value) {
+                        mConversationArrayAdapter.add(readMessage);
+                        Log.i(TAG, readMessage);
+//                    }
                     Log.e(TAG, "******************************************************************************************");
 //                    String val = listMsg.get(1);
 
@@ -220,16 +215,15 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case MESSAGE_TOAST:
                     Toast.makeText(mContext, msg.getData().getString(Constants.TOAST), Toast.LENGTH_SHORT).show();
-                    setTitleMenu("Connect");
-                    isEnableBt = true;
+                    setTitleMenu(R.string.disconnect_device);
                     break;
             }
         }
     };
 
-    private void setTitleMenu(String titleMenu) {
+    private void setTitleMenu(int id) {
         MenuItem menuItem = mMenu.findItem(R.id.connect_device_bt);
-        menuItem.setTitle(titleMenu);
+        menuItem.setTitle(id);
     }
 
     private void connectDevice(Intent data) {
