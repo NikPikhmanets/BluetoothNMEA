@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/title_paired_devices"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#868484"
+        android:padding="8dp"
+        android:textSize="16sp"
+        android:text="@string/title_paired_devices"
+        android:textAlignment="center"
+        android:textColor="#fff"
+        tools:text="Title"/>
+
+    <ListView
+        android:id="@+id/paired_devices"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintDimensionRatio="w,1:1"
+        app:layout_constraintTop_toBottomOf="@+id/title_paired_devices">
+
+    </ListView>
+
+</android.support.constraint.ConstraintLayout>
